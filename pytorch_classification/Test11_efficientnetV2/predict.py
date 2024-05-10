@@ -8,8 +8,12 @@ import matplotlib.pyplot as plt
 
 from model import efficientnetv2_s as create_model
 
+from loguru import logger
+
 
 def main():
+
+    logger.info("启用cuda" if torch.cuda.is_available() else "未启用cuda，使用cpu")
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     img_size = {"s": [300, 384],  # train_size, val_size
@@ -25,6 +29,7 @@ def main():
 
     # load image
     img_path = "../tulip.jpg"
+    img_path = R"D:\Models\DeepLearningForImageProcessing\nxxx_common\nxxx_data\pred_data\dandelion\ai\img_2.png"
     assert os.path.exists(img_path), "file: '{}' dose not exist.".format(img_path)
     img = Image.open(img_path)
     plt.imshow(img)
@@ -44,6 +49,7 @@ def main():
     model = create_model(num_classes=5).to(device)
     # load model weights
     model_weight_path = "./weights/model-29.pth"
+    model_weight_path = r"D:\Models\DeepLearningForImageProcessing\pytorch_classification\Test11_efficientnetV2\weights\model-7.pth"
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     model.eval()
     with torch.no_grad():

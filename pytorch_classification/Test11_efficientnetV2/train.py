@@ -12,11 +12,27 @@ from model import efficientnetv2_s as create_model
 from my_dataset import MyDataSet
 from utils import read_split_data, train_one_epoch, evaluate
 
+from loguru import logger
+from pprint import pprint
+from prettytable import PrettyTable
+
+
 
 def main(args):
+    logger.info("启用cuda" if torch.cuda.is_available() else "未启用cuda，使用cpu")
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
-    print(args)
+
+    # print(args)
+
+    args_table = PrettyTable()# 创建PrettyTable实例
+    args_table.field_names = ["超参数", "value"]# 设置列标题
+    for key, value in vars(args).items():# 遍历字典，将键值对添加到表格中
+        args_table.add_row([key, value])
+
+    logger.success(f"本次训练的参数配置:\n{args_table}")# 打印表格
+
+
     print('Start Tensorboard with "tensorboard --logdir=runs", view at http://localhost:6006/')
     tb_writer = SummaryWriter()
     if os.path.exists("./weights") is False:
@@ -118,26 +134,55 @@ def main(args):
         torch.save(model.state_dict(), "./weights/model-{}.pth".format(epoch))
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('--num_classes', type=int, default=5)
+#     parser.add_argument('--epochs', type=int, default=30)
+#     parser.add_argument('--batch-size', type=int, default=8)
+#     parser.add_argument('--lr', type=float, default=0.01)
+#     parser.add_argument('--lrf', type=float, default=0.01)
+#
+#     # 数据集所在根目录
+#     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
+#     parser.add_argument('--data-path', type=str,
+#                         default="/data/flower_photos")
+#
+#     # download model weights
+#     # 链接: https://pan.baidu.com/s/1uZX36rvrfEss-JGj4yfzbQ  密码: 5gu1
+#     parser.add_argument('--weights', type=str, default='./pre_efficientnetv2-s.pth',
+#                         help='initial weights path')
+#     parser.add_argument('--freeze-layers', type=bool, default=True)
+#     parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
+#
+#     opt = parser.parse_args()
+#
+#     main(opt)
+
+from nxxx_common.nxxx_conf import train_conf
+
+
+def nxxx_train():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_classes', type=int, default=5)
-    parser.add_argument('--epochs', type=int, default=30)
-    parser.add_argument('--batch-size', type=int, default=8)
-    parser.add_argument('--lr', type=float, default=0.01)
-    parser.add_argument('--lrf', type=float, default=0.01)
+    parser.add_argument('--num_classes', type=int, default=train_conf.efficientnetv2['num_classes'])
+    parser.add_argument('--epochs', type=int, default=train_conf.efficientnetv2['epochs'])
+    parser.add_argument('--batch-size', type=int, default=train_conf.efficientnetv2['batch-size'])
+    parser.add_argument('--lr', type=float, default=train_conf.efficientnetv2['lr'])
+    parser.add_argument('--lrf', type=float, default=train_conf.efficientnetv2['lrf'])
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-    parser.add_argument('--data-path', type=str,
-                        default="/data/flower_photos")
+    parser.add_argument('--data-path', type=str, default=train_conf.efficientnetv2['data-path'])
 
     # download model weights
     # 链接: https://pan.baidu.com/s/1uZX36rvrfEss-JGj4yfzbQ  密码: 5gu1
-    parser.add_argument('--weights', type=str, default='./pre_efficientnetv2-s.pth',
-                        help='initial weights path')
-    parser.add_argument('--freeze-layers', type=bool, default=True)
-    parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
+    parser.add_argument('--weights', type=str, default=train_conf.efficientnetv2['weights'], help='initial weights path')
+    parser.add_argument('--freeze-layers', type=bool, default=train_conf.efficientnetv2['freeze-layers'])
+    parser.add_argument('--device', default=train_conf.efficientnetv2['device'], help='device id (i.e. 0 or 0,1 or cpu)')
 
     opt = parser.parse_args()
 
     main(opt)
+
+
+if __name__ == '__main__':
+    nxxx_train()

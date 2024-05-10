@@ -1,0 +1,5 @@
+*.pth
+pytorch_classification/Test11_efficientnetV2/runs/*
+pytorch_classification/Test11_efficientnetV2/weights/*
+data_set/flower_data
+data_set/flower_photos
